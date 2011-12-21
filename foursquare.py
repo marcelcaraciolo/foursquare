@@ -135,7 +135,6 @@ def bind_api(**config):
             while retries_performed < self.retry_count + 1:
                 #Open the connection
                 conn = httplib.HTTPSConnection(self.host)
-                print self.method, url, self.headers, self.post_data
                 #Execute the request
                 try:
                     conn.request(self.method, url, headers=self.headers, body=self.post_data)
@@ -249,6 +248,32 @@ class OAuthHandler(object):
             raise FoursquareError(e)
 
 
+class JSONParser(object):
+
+    payload_format = 'json'
+
+    def parse(self, method, payload):
+        try:
+            json = simplejson.loads(payload)
+        except Exception, e:
+            raise FoursquareError('Failed to parse JSON payload: %s' % e)
+
+        needsCursors = 'offset 'in method.parameters
+        if needsCursors and isinstance(json, dict) \
+            and 'previous_cursor' in json and 'next_cursor' in json:
+            cursors = json['previous_cursor'], json['next_cursor']
+            return json, cursors
+        else:
+            return json
+
+    def parse_error(self, payload):
+        error = simplejson.loads(payload)
+        if 'error' in error:
+            return error['error']
+        else:
+            return error['errors']
+
+
 class API(object):
     """Foursquare API """
     def __init__(self, auth_handler=None, host='api.foursquare.com',
@@ -260,6 +285,7 @@ class API(object):
         self.retry_count = retry_count
         self.retry_delay = retry_delay
         self.retry_errors = retry_errors
+        self.parser = JSONParser()
 
     """ venues/search """
     venues_search = bind_api(
@@ -270,7 +296,7 @@ class API(object):
     )
 
     """ venues """
-    venues_tips = bind_api(
+    venues = bind_api(
         path='/venues/{id}',
         payload_type='venue', payload_list=True,
         allowed_param=['id']
@@ -280,7 +306,7 @@ class API(object):
     venues_tips = bind_api(
         path='/venues/{id}/tips',
         payload_type='tip', payload_list=True,
-        allowed_param=['id']
+        allowed_param=['id', 'sort', 'limit', 'offset']
     )
 
     """ tips """

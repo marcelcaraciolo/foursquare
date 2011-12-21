@@ -4,40 +4,37 @@ from foursquare import OAuthHandler, API
 
 
 class TestAuthentication(unittest.TestCase):
-    CLIENT_ID = 'Q21XU2GLWLAXCJUPCEQVBACJ0LHDV2J4ZID1HUB1HH145KE5'
-    CLIENT_SECRET = 'VZNAXMWNRXXMPKC2FP24MGUQ14VM53MLQ4EFLDIADOVMKZ2C'
+    CLIENT_ID = 'YOUR_CLIENT_ID'
+    CLIENT_SECRET = 'YOUR_CLIENT_SECRET'
 
     def _test_create_OAuthHandler(self):
         auth = OAuthHandler(TestAuthentication.CLIENT_ID, TestAuthentication.CLIENT_SECRET,
-            'http://localhost:8087')
+            'YOUR_CALLBACK')
         self.assertEquals(auth._client_id, TestAuthentication.CLIENT_ID)
         self.assertEquals(auth._client_secret, TestAuthentication.CLIENT_SECRET)
         self.assertEquals(auth.callback, 'http://localhost:8087')
 
     def _test_get_authorization_url(self):
         auth = OAuthHandler(TestAuthentication.CLIENT_ID, TestAuthentication.CLIENT_SECRET,
-            'http://localhost:8087')
-        self.assertEquals(auth.get_authorization_url(),
-            'https://foursquare.com/oauth2/authenticate?redirect_uri=http%3A%2F%2Flocalhost%3A8087' +
-            '&response_type=code&client_id=Q21XU2GLWLAXCJUPCEQVBACJ0LHDV2J4ZID1HUB1HH145KE5'
-        )
+            'YOUR_CALLBACK')
+        self.assertTrue('https://foursquare.com/oauth2/authenticate?' in auth.get_authorization_url())
 
     def _test_get_access_token(self):
         auth = OAuthHandler(TestAuthentication.CLIENT_ID, TestAuthentication.CLIENT_SECRET,
-            'http://localhost:8087')
-        code = 'ME3RKHUKKAIBB2RSAXWJAVWSSADWHTAMEALTFIYBNMMIZ34I'
+            'YOUR_CALLBACK')
+        code = 'YOUR_ACCESS_TOKEN'
         self.assert_(auth.get_access_token(code) is not None)
 
 
 class TestAPI(unittest.TestCase):
-    CLIENT_ID = 'Q21XU2GLWLAXCJUPCEQVBACJ0LHDV2J4ZID1HUB1HH145KE5'
-    CLIENT_SECRET = 'VZNAXMWNRXXMPKC2FP24MGUQ14VM53MLQ4EFLDIADOVMKZ2C'
+    CLIENT_ID = 'YOUR CLIENT_ID'
+    CLIENT_SECRET = 'YOUR CLIENT_SECRET'
 
     def setUp(self):
         self.auth = OAuthHandler(TestAuthentication.CLIENT_ID,
                                 TestAuthentication.CLIENT_SECRET,
-                                'http://localhost:8087')
-        self.auth.set_access_token('GMH40LRBSSF450NJYABQUGHPMRSUJX1O0F34UD4OQEH0KX2B')
+                                'YOUR_CALLBACK')
+        self.auth.set_access_token('YOUR_ACCESS_TOKEN')
 
     def test_create_api(self):
         api = API(self.auth)
@@ -48,10 +45,17 @@ class TestAPI(unittest.TestCase):
         self.assertEquals(api.retry_count, 0)
         self.assertEquals(api.retry_delay, 0)
 
-    def test_venues_search(self):
+    def _test_venues_search(self):
         api = API(self.auth)
         print api.venues_search(query='Burburinho', ll='-8.063542,-34.872891')
 
+    def _test_venues(self):
+        api = API(self.auth)
+        print api.venues(id='4bb0e776f964a52099683ce3')
+
+    def test_venues_tips(self):
+        api = API(self.auth)
+        print api.venues_tips(id='4bb0e776f964a52099683ce3')
+
+
 unittest.main()
-
-
