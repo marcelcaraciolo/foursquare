@@ -33,8 +33,13 @@ print 'Your access token is ' + access_token
 api = foursquare.API(auth)
 
 #Now you can access the Foursquare API!
-print api.venues_search(query='Burburinho', ll='-8.063542,-34.872891')
+result = api.venues_search(query='Burburinho', ll='-8.063542,-34.872891')
 
+#You can acess as a Model
+print dir(result[0])
+
+#Access all its attributes
+print result[0].name
 
 """
 If you already have the access token for this user

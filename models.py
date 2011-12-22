@@ -183,4 +183,3 @@ class ModelFactory(object):
     tips = Tip
     user = User
     venues = SearchResult
-
