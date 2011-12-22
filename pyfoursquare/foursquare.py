@@ -23,10 +23,6 @@ from datetime import datetime
 from models import ModelFactory
 
 
-__author__ = 'Marcel Caraciolo'
-__version__ = '0.1'
-
-
 re_path_template = re.compile('{\w+}')
 
 
