@@ -20,6 +20,7 @@ import json as simplejson
 import httplib
 import re
 from datetime import datetime
+from models import ModelFactory
 
 
 __author__ = 'Marcel Caraciolo'
@@ -274,6 +275,45 @@ class JSONParser(object):
             return error['errors']
 
 
+class ModelParser(JSONParser):
+
+    def __init__(self, model_factory=None):
+        JSONParser.__init__(self)
+        self.model_factory = model_factory or ModelFactory
+
+    def parse(self, method, payload):
+        try:
+            if method.payload_type is None:
+                return
+            model = getattr(self.model_factory, method.payload_type)
+        except AttributeError:
+            raise FoursquareError('No model for this payload type: %s' % method.payload_type)
+
+        json = JSONParser.parse(self, method, payload)
+
+        if method.payload_list and method.payload_type not in ['venues']:
+            result = model.parse_list(method.api, json['response'][method.payload_type]['items'])
+        elif method.payload_list:
+            #Search Result
+            result = model.parse_list(method.api, json['response'][method.payload_type])
+        else:
+            result = model.parse(method.api, json['response'][method.payload_type])
+        return result
+
+        if isinstance(json, tuple):
+            json, cursors = json
+        else:
+            cursors = None
+
+        if method.payload_list:
+            result = model.parse_list(method.api, json)
+        else:
+            result = model.parse(method.api, json)
+
+        if cursors:
+            return result, cursors
+
+
 class API(object):
     """Foursquare API """
     def __init__(self, auth_handler=None, host='api.foursquare.com',
@@ -285,12 +325,12 @@ class API(object):
         self.retry_count = retry_count
         self.retry_delay = retry_delay
         self.retry_errors = retry_errors
-        self.parser = JSONParser()
+        self.parser = ModelParser()
 
     """ venues/search """
     venues_search = bind_api(
         path='/venues/search',
-        payload_type='venue', payload_list=True,
+        payload_type='venues', payload_list=True,
         allowed_param=['ll', 'llAcc', 'alt', 'altAcc', 'query',
                          'limit', 'intent']
     )
@@ -298,20 +338,20 @@ class API(object):
     """ venues """
     venues = bind_api(
         path='/venues/{id}',
-        payload_type='venue', payload_list=True,
+        payload_type='venue', payload_list=False,
         allowed_param=['id']
     )
 
     """ venues/tips """
     venues_tips = bind_api(
         path='/venues/{id}/tips',
-        payload_type='tip', payload_list=True,
+        payload_type='tips', payload_list=True,
         allowed_param=['id', 'sort', 'limit', 'offset']
     )
 
     """ tips """
     tips = bind_api(
         path='/tips/{id}',
-        payload_type='tip', payload_list=True,
+        payload_type='tips', payload_list=True,
         allowed_param=['id']
     )
