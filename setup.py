@@ -20,7 +20,7 @@
 from setuptools import setup, find_packages
 import pyfoursquare
 
-name = "pyfoursquare"
+name = 'pyfoursquare'
 
 version = str(pyfoursquare.__version__)
 

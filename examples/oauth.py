@@ -1,4 +1,4 @@
-import foursquare
+import pyfoursquare as foursquare
 
 # == OAuth2 Authentication ==
 #

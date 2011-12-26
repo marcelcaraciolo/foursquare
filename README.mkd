@@ -37,8 +37,7 @@ How to Use it
 
 
 ```python
-import foursquare
-
+import pyfoursquare as foursquare
 # == OAuth2 Authentication ==
 #
 # This mode of authentication is the required one for Foursquare
