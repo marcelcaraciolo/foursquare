@@ -123,7 +123,7 @@ class Venue(Model):
         return self._api.venues_tips(id=self.id, **kwargs)
 
     def __repr__(self):
-        return self.name
+        return self.name.encode('utf-8')
 
 
 class User(Model):

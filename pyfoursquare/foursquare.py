@@ -118,7 +118,7 @@ def bind_api(**config):
             if self.api.auth:
                 url = '%s?%s' % (url, self.api.auth.apply_auth())
 
-            self.parameters['v'] = datetime.now().strftime('%Y%M%d')
+            self.parameters['v'] = datetime.now().strftime('%Y%m%d')
 
             if len(self.parameters):
                 if self.api.auth:
@@ -328,7 +328,7 @@ class API(object):
         path='/venues/search',
         payload_type='venues', payload_list=True,
         allowed_param=['ll', 'llAcc', 'alt', 'altAcc', 'query',
-                         'limit', 'intent']
+                         'limit', 'intent', 'radius']
     )
 
     """ venues """
