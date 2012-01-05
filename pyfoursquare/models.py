@@ -163,7 +163,7 @@ class Tip(Model):
         return tip
 
     def __repr__(self):
-        return self.text[:10]
+        return self.text[:10].encode('utf-8')
 
 
 class SearchResult(Model):
