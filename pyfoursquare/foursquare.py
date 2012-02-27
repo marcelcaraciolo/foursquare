@@ -58,7 +58,7 @@ def bind_api(**config):
 
         def __init__(self, api, args, kwargs):
             #It must be authenticated for method calls
-            if self.require_auth and not api.auth:
+            if self.require_auth and not hasattr(api.auth, 'access_token'):
                 raise FoursquareError('Authentication required!')
 
             self.api = api
@@ -174,16 +174,27 @@ def bind_api(**config):
     return _call
 
 
-class OAuthHandler(object):
+class BasicAuthHandler(object):
+    """
+    For non-OAuth authentication required method requests
+    """
+    def __init__(self, client_id, client_secret, callback=None):
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self.callback = callback
+
+    def apply_auth(self):
+        return 'client_id=%s&client_secret=%s' % (self._client_id, self._client_secret)
+
+
+class OAuthHandler(BasicAuthHandler):
     """ OAuth authentication handler """
 
     OAUTH_HOST = 'foursquare.com'
     OAUTH_ROOT = '/oauth2/'
 
     def __init__(self, client_id, client_secret, callback=None):
-        self._client_id = client_id
-        self._client_secret = client_secret
-        self.callback = callback
+        BasicAuthHandler.__init__(self, client_id, client_secret, callback)
 
     def _get_oauth_url(self, endpoint):
         return 'https://' + self.OAUTH_HOST + self.OAUTH_ROOT + endpoint
@@ -265,10 +276,15 @@ class JSONParser(object):
 
     def parse_error(self, payload):
         error = simplejson.loads(payload)
-        if 'error' in error:
-            return error['error']
-        else:
-            return error['errors']
+        meta = error.get('meta')
+        msg = ""
+        if meta:
+            if 'errorType' in meta:
+                msg += meta['errorType']
+
+            if 'errorDetail' in meta:
+                msg = msg + ': ' + meta['errorDetail']
+        return msg
 
 
 class ModelParser(JSONParser):
@@ -335,19 +351,24 @@ class API(object):
     venues = bind_api(
         path='/venues/{id}',
         payload_type='venue', payload_list=False,
-        allowed_param=['id']
+        allowed_param=['id'],
+        require_auth=True
     )
 
     """ venues/tips """
     venues_tips = bind_api(
         path='/venues/{id}/tips',
         payload_type='tips', payload_list=True,
-        allowed_param=['id', 'sort', 'limit', 'offset']
+        allowed_param=['id', 'sort', 'limit', 'offset'],
+        require_auth=True
+
     )
 
     """ tips """
     tips = bind_api(
         path='/tips/{id}',
         payload_type='tips', payload_list=True,
-        allowed_param=['id']
+        allowed_param=['id'],
+        require_auth=True
+
     )
