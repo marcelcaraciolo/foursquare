@@ -266,13 +266,7 @@ class JSONParser(object):
         except Exception, e:
             raise FoursquareError('Failed to parse JSON payload: %s' % e)
 
-        needsCursors = 'offset 'in method.parameters
-        if needsCursors and isinstance(json, dict) \
-            and 'previous_cursor' in json and 'next_cursor' in json:
-            cursors = json['previous_cursor'], json['next_cursor']
-            return json, cursors
-        else:
-            return json
+        return json
 
     def parse_error(self, payload):
         error = simplejson.loads(payload)
@@ -294,6 +288,7 @@ class ModelParser(JSONParser):
         self.model_factory = model_factory or ModelFactory
 
     def parse(self, method, payload):
+
         try:
             if method.payload_type is None:
                 return
@@ -303,13 +298,19 @@ class ModelParser(JSONParser):
 
         json = JSONParser.parse(self, method, payload)
 
-        if method.payload_list and method.payload_type not in ['venues']:
+        if method.payload_list  and 'count' in json['response'][method.payload_type]:
+            count = json['response'][method.payload_type]['count']
+
+        if method.payload_list and method.payload_type not in ['venues', 'user']:
             result = model.parse_list(method.api, json['response'][method.payload_type]['items'])
+
         elif method.payload_list:
             #Search Result
             result = model.parse_list(method.api, json['response'][method.payload_type])
+
         else:
             result = model.parse(method.api, json['response'][method.payload_type])
+
         return result
 
         if isinstance(json, tuple):
@@ -369,6 +370,33 @@ class API(object):
         path='/tips/{id}',
         payload_type='tips', payload_list=True,
         allowed_param=['id'],
+        require_auth=True
+
+    )
+
+    """ users """
+    users = bind_api(
+        path='/users/{id}',
+        payload_type='user', payload_list=False,
+        allowed_param=['id'],
+        require_auth=True
+
+    )
+
+    """ users friends """
+    user_friends = bind_api(
+        path='/users/{id}/friends',
+        payload_list=True, payload_type='friends',
+        allowed_param=['id', 'limit', 'offset'],
+        require_auth=True
+
+    )
+
+    """ users checkins """
+    user_checkins = bind_api(
+        path='/users/{id}/checkins',
+        payload_list=True, payload_type='checkin',
+        allowed_param=['id', 'limit', 'offset', 'afterTimestamp', 'beforeTimestamp'],
         require_auth=True
 
     )

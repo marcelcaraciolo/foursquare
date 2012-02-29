@@ -126,6 +126,19 @@ class Venue(Model):
         return self.name.encode('utf-8')
 
 
+class Score(Model):
+    @classmethod
+    def parse(cls, api, json):
+        scores = cls(api)
+        for key, value in json.items():
+            setattr(scores, key, value)
+
+        return scores
+
+    def __repr__(self):
+        return 'scores'
+
+
 class User(Model):
     @classmethod
     def parse(cls, api, json):
@@ -140,12 +153,33 @@ class User(Model):
                 except ValueError:
                     city = value.split(',')
                 setattr(user, 'city', city)
+
+            elif key == 'friends':
+                pass
+                #we will use api for this
+
+            elif key == 'checkins':
+                pass
+                #we will use api for this
+
+            elif key == 'scores':
+                setattr(user, key, Score.parse(api, value))
+            elif key in ['following', 'todos', 'badges', 'requests', 'photos', 'tips']:
+                setattr(user, key, value['count'])
             else:
                 setattr(user, key, value)
+
         return user
 
+    def checkins(self, **kwargs):
+        return self._api.user_checkins(id=self.id, **kwargs)
+
+    def friends(self, **kwargs):
+        return self._api.user_friends(id=self.id, **kwargs)
+
     def __repr__(self):
-        return self.name
+        return self.name.encode('utf-8') if hasattr(self, 'name') \
+            else self.firstName.encode('utf-8')
 
 
 class Tip(Model):
@@ -172,6 +206,12 @@ class SearchResult(Model):
         return Venue.parse(api, json)
 
 
+class FriendsResult(Model):
+    @classmethod
+    def parse(cls, api, json):
+        return User.parse(api, json)
+
+
 class ModelFactory(object):
     """
     Used by parsers for creating instances
@@ -183,3 +223,4 @@ class ModelFactory(object):
     tips = Tip
     user = User
     venues = SearchResult
+    friends = FriendsResult

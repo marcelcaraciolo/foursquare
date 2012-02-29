@@ -1,7 +1,7 @@
 import unittest
 import urllib
 from foursquare import OAuthHandler, API, BasicAuthHandler, FoursquareError
-from models import Tip
+from models import Tip, User
 
 
 class TestAuthentication(unittest.TestCase):
@@ -75,8 +75,17 @@ class TestAPI(unittest.TestCase):
         api = API(self.auth)
         r = api.venues_tips(id='4bb0e776f964a52099683ce3')
         self.assert_(isinstance(r[0], Tip))
-        r = api.venues_tips(id='40a55d80f964a52020f31ee3', limit=200)
+        r = api.venues_tips(id='40a55d80f964a52020f31ee3', limit=10, offset=0)
         self.assert_(isinstance(r[0], Tip))
-        self.assertEquals(len(r), 170)
+        self.assertEquals(len(r), 10)
+        r = api.venues_tips(id='40a55d80f964a52020f31ee3', limit=10, offset=10)
+        self.assertEquals(len(r), 10)
+
+    def test_users(self):
+        api = API(self.auth)
+        r = api.users(id='self')
+        self.assert_(isinstance(r, User))
+        self.assert_(isinstance(r.friends()[0], User))
+
 
 unittest.main()
