@@ -14,6 +14,8 @@ https://github.com/marcelcaraciolo/foursquare
 
 """
 
+from utils import parse_datetime
+
 
 class ResultSet(list):
     """A list like object that holds results from a Twitter API query."""
@@ -126,6 +128,24 @@ class Venue(Model):
         return self.name.encode('utf-8')
 
 
+class Checkin(Model):
+    @classmethod
+    def parse(cls, api, json):
+        checkin = cls(api)
+        for key, value in json.items():
+            if key == 'venue':
+                setattr(checkin, key, Venue.parse(api, value))
+            elif key == 'createdAt':
+                setattr(checkin, key, parse_datetime(value))
+            else:
+                setattr(checkin, key, value)
+
+        return checkin
+
+    def __repr__(self):
+        return self.venue.name.encode('utf-8') + ' - ' + self.createdAt.strftime('%d/%m/%Y %H:%M:%S')
+
+
 class Score(Model):
     @classmethod
     def parse(cls, api, json):
@@ -224,3 +244,4 @@ class ModelFactory(object):
     user = User
     venues = SearchResult
     friends = FriendsResult
+    checkins = Checkin

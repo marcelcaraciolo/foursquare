@@ -395,7 +395,7 @@ class API(object):
     """ users checkins """
     user_checkins = bind_api(
         path='/users/{id}/checkins',
-        payload_list=True, payload_type='checkin',
+        payload_list=True, payload_type='checkins',
         allowed_param=['id', 'limit', 'offset', 'afterTimestamp', 'beforeTimestamp'],
         require_auth=True
 

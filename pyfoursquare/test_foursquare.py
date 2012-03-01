@@ -42,7 +42,7 @@ class TestAPI(unittest.TestCase):
         self.auth = OAuthHandler(TestAuthentication.CLIENT_ID,
                                 TestAuthentication.CLIENT_SECRET,
                                 TestAuthentication.REDIRECT_URI)
-        self.auth.set_access_token('YOUR_ACCESS_TOKEN')
+        self.auth.set_access_token('YOUR_CODE')
 
     def test_create_api(self):
         api = API(self.auth)
@@ -86,6 +86,7 @@ class TestAPI(unittest.TestCase):
         r = api.users(id='self')
         self.assert_(isinstance(r, User))
         self.assert_(isinstance(r.friends()[0], User))
+        self.assertEquals(len(r.checkins()), 20)
 
 
 unittest.main()
