@@ -7,7 +7,7 @@ Python Library for Foursquare
 """
 
 __author__ = 'Marcel Caraciolo'
-__version__ = '0.0.13'
+__version__ = '0.0.14'
 
 
 from pyfoursquare.models import Venue, User, Tip, SearchResult
