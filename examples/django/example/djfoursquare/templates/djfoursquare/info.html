@@ -1,0 +1,10 @@
+{% extends "djfoursquare/base.html" %}
+
+	{% block content %}
+		<div id="container">
+			<img src="{{user.profile_image_url}}" />
+			<h3>{{user.firstName}} {{user.lastName}}</h3>
+			<p><img src="{{user.photo}}"/><p/>
+			<a href="/logout/" title="logout">logout</a>
+		</div>
+	{% endblock %}

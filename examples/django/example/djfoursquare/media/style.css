@@ -1,0 +1,9 @@
+body {
+    font-family: georgia;
+}
+#container {
+    width: 50%;
+    margin-top: 2em;
+    margin-left: auto;
+    margin-right: auto;
+}
