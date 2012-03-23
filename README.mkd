@@ -93,3 +93,51 @@ Now you can go on by the line 33.
 """
 
 ```
+
+How to Use it with Django simple example
+--------------
+
+Download the pyfoursquare/examples folder.
+
+Go to the the django/example folder.
+
+You must have django installed at your machine. Django is a popular and powerful
+web framework written in Python.
+
+http://www.djangoproject.com
+
+Now, just execute the command at the terminal:
+
+```
+$ python manage.py syncdb
+
+```
+
+This command above will sync and create the tables using sqlite3.
+
+Now edit the settings.py file and place your Developer's App Credentials:
+
+```python
+
+FOURSQUARE_CLIENT_ID =  ''
+FOURSQUARE_CLIENT_SECRET = ''
+FOURSQUARE_CALLBACK = ''
+
+```
+Save it. Now run the command at the terminal:
+
+```
+$ python manage.py runserver
+
+```
+
+It will run the web app.  This demo will demonstrate the authentication procedure
+and show the user name and photo.
+
+Just open the browser and go to the url: 
+
+http://localhost:8000/
+
+
+Enjoy it!
+
